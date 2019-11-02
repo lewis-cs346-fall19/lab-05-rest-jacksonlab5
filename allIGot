@@ -1,0 +1,92 @@
+#! /usr/bin/python3
+
+import cgi
+import cgitb
+import os
+import json
+import authen
+import MySQLdb
+
+
+form = cgi.FieldStorage()
+
+def default():
+ print("Status: 200 OK")
+ print("Content-type: text/html")
+ print()
+ print("""<html>
+<head>
+<title>Regular</title>
+</head>
+
+<body>some nonsense</body>
+</html>
+""")
+
+def show():
+ conn = MySQLdb.connect(host = authen.SQL_HOST, user = authen.SQL_USER ,passwd = authen.SQL_PASSWD, db = "jtmain")
+ 
+ cursor = conn.cursor()
+ 
+ cursor.execute("SELECT * FROM lab5;")
+ 
+ results = cursor.fetchall()
+
+ cursor.close()
+ 
+ print("Status: 200 OK")
+ print("Content-type: application/json")
+ print()
+
+ jtry = json.dumps(results, indent=2)
+ print(jtry)
+
+def newEntry():
+ print("Status: 200 OK")
+ print("Content-type: text/html")
+ print()
+ 
+ print("""<html>
+<head>
+<title>New entry</title>
+</head>
+
+<body>
+<form action="/var/www/cgi-bin/heights/postnew" method="POST">
+Name
+<input type="text" name="name">
+<b>
+<input type="text" name="height">
+<input type="submit">
+""")
+
+def postit():
+ print
+
+def Json():
+ print("Status: 200 OK")
+ print("Content-type: application/json")
+ print()
+ 
+ x = [1,2,50]
+ x_json = json.dumps(x, indent=2)
+ 
+ print(x_json)
+
+if "PATH_INFO" in os.environ:
+ pathinfo = os.environ["PATH_INFO"]
+else:
+ pathinfo = "/"
+
+if pathinfo == "/":
+ default()
+elif pathinfo == "/jsontry":
+ Json()
+elif pathinfo == "/show":
+ show()
+elif pathinfo == "/new":
+ newEntry()
+else:
+ print("Status: 404 Not Found")
+ print()
+ print("The CGI path '{}', underneath the 'pathinfo' tool was not a valod URL".format(pathinfo))
